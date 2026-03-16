@@ -204,7 +204,7 @@
           { url: 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en', name: 'Google News (US)' },
           { url: 'https://www.usatoday.com/rss/news/nation/now-topstories.xml', name: 'USA Today' },
           { url: 'https://axios.com/feed', name: 'Axios' },
-          { url: 'https://thehill.com/homenews/feed/', name: 'The Hill' } // Added reliable center politics
+          { url: 'https://thehill.com/homenews/feed/', name: 'The Hill' }
         ],
         left: [
           { url: 'https://www.cbsnews.com/latest/rss/main', name: 'CBS News' },
@@ -212,7 +212,7 @@
           { url: 'https://feeds.abcnews.com/abcnews/politicsheadlines', name: 'ABC News Politics' },
           { url: 'https://rss.cnn.com/rss/cnn_topstories.rss', name: 'CNN Top Stories' },
           { url: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', name: 'New York Times' },
-          { url: 'https://www.politico.com/rss/politicopicks.xml', name: 'POLITICO' } // Kept, but if 403 persists we can drop
+          { url: 'https://www.politico.com/rss/politicopicks.xml', name: 'POLITICO' }
         ]
       },
       international: [
@@ -239,7 +239,7 @@
       ]
     };
 
-    const proxy = 'https://api.allorigins.win/raw?url=';
+    const proxy = 'https://corsproxy.io/?'; // switch to '' to try direct if Netlify allows
 
     function parseRSS(xmlString) {
       const parser = new DOMParser();
@@ -254,7 +254,8 @@
 
     async function fetchFeed(url) {
       try {
-        const res = await fetch(proxy + encodeURIComponent(url), {
+        const target = proxy + encodeURIComponent(url);
+        const res = await fetch(target, {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
           }
@@ -314,7 +315,7 @@
 
       grid.innerHTML = '';
       if (items.length === 0) {
-        grid.innerHTML = '<div class="error">No headlines loaded (some feeds may be blocked — try Refresh Now again or check console).</div>';
+        grid.innerHTML = '<div class="error">No headlines loaded (some feeds may be blocked — try Refresh Now again).</div>';
         return;
       }
 
