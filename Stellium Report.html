@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Stellium Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080b10; --surface: #0e1118; --card: #12161f; --border: #1e2535;
+      --neon: #00f5c4; --neon2: #7b61ff; --neon3: #ff4f8b; --neon4: #ffb547; --neon5: #38bdf8;
+      --text: #e8edf5; --muted: #5a6478;
+      --font-head: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
+    }
+    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font-head); overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,245,196,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,196,.03) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; }
+    body::after { content: ''; position: fixed; top: -40%; left: -20%; width: 80vw; height: 80vw; background: radial-gradient(circle, rgba(0,245,196,.06) 0%, transparent 65%); pointer-events: none; z-index: 0; animation: breathe 8s ease-in-out infinite alternate; }
+    @keyframes breathe { from { transform: scale(1) translate(0,0); } to { transform: scale(1.15) translate(5%,5%); } }
+    .container { position: relative; z-index: 1; margin: 0 auto; padding: 48px 32px 80px; max-width: 1400px; }
+    header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; padding-bottom: 18px; border-bottom: 1px solid var(--border); animation: fadeDown .6s ease both; }
+    .header-left h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -1px; line-height: 1; }
+    .header-left h1 span { color: var(--neon); text-shadow: 0 0 24px rgba(0,245,196,.5); }
+    .clock { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 500; color: var(--neon); text-shadow: 0 0 16px rgba(0,245,196,.4); text-align: right; }
+    .clock small { display: block; font-size: .7rem; color: var(--muted); letter-spacing: .08em; margin-top: 4px; }
+    .controls { display: flex; align-items: center; gap: 12px; }
+    button { 
+      background: #1e2535; 
+      color: var(--neon); 
+      border: 1px solid var(--border); 
+      padding: 10px 18px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-family: var(--font-mono); 
+      font-size: .9rem; 
+      font-weight: 500; 
+      transition: all .25s ease; 
+    }
+    button:hover { 
+      background: rgba(0,245,196,.1); 
+      border-color: var(--neon); 
+      box-shadow: 0 0 16px rgba(0,245,196,.3); 
+    }
+    .section-label { 
+      font-family: var(--font-mono); 
+      font-size: 1.1rem; 
+      font-weight: 700; 
+      letter-spacing: .05em; 
+      text-transform: uppercase; 
+      margin-bottom: 16px; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      text-shadow: 0 0 12px rgba(0,245,196,.4); 
+    }
+    .sec-us    .section-label { color: var(--neon);   text-shadow: 0 0 12px rgba(0,245,196,.6); }
+    .sec-int   .section-label { color: var(--neon2);  text-shadow: 0 0 12px rgba(123,97,255,.6); }
+    .sec-tech  .section-label { color: var(--neon5);  text-shadow: 0 0 12px rgba(56,189,248,.6); }
+    .sec-sci   .section-label { color: var(--neon4);  text-shadow: 0 0 12px rgba(255,181,71,.6); }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section { margin-bottom: 48px; animation: fadeUp .6s ease both; }
+    .section:nth-child(2) { animation-delay: .1s; }
+    .section:nth-child(3) { animation-delay: .2s; }
+    .section:nth-child(4) { animation-delay: .3s; }
+    .grid { display: grid; gap: 14px; }
+    .grid-us   { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .grid-other { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    @media (min-width: 1200px) {
+      .grid-us   { grid-template-columns: repeat(6, 1fr); }
+      .grid-other { grid-template-columns: repeat(6, 1fr); }
+    }
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 20px 18px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity .3s ease;
+      background: radial-gradient(circle at 50% 0%, var(--accent, var(--neon)), transparent 70%);
+    }
+    .card:hover {
+      transform: translateY(-4px) scale(1.01);
+      border-color: var(--accent, var(--neon));
+      box-shadow: 0 0 0 1px var(--accent, var(--neon)), 0 8px 32px rgba(0,0,0,.5), 0 0 40px -10px var(--accent, var(--neon));
+    }
+    .card:hover::before { opacity: .08; }
+    .card-name {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      color: var(--accent, var(--neon));
+      text-shadow: 0 0 8px var(--accent, var(--neon));
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-top: 4px;
+    }
+    .card-date {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: auto;
+    }
+    .card-arrow {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: .9rem;
+      color: var(--muted);
+      opacity: 0;
+      transform: translate(-4px,4px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .card:hover .card-arrow {
+      opacity: 1;
+      transform: translate(0,0);
+      color: var(--accent, var(--neon));
+    }
+    .sec-us    .card { --accent: var(--neon);   }
+    .sec-int   .card { --accent: var(--neon2);  }
+    .sec-tech  .card { --accent: var(--neon5);  }
+    .sec-sci   .card { --accent: var(--neon4);  }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp   { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 768px) { .header { flex-direction: column; align-items: center; } .header-right { align-items: center; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-left">
+        <h1>The <span>Stellium</span> Report</h1>
+      </div>
+      <div class="clock" id="clock">
+        <span id="clock-time"></span>
+        <small id="clock-date"></small>
+      </div>
+      <div class="controls">
+        <button id="refresh-now">Refresh Now</button>
+      </div>
+    </header>
+
+    <div class="section sec-us">
+      <div class="section-label">U.S. News & Politics</div>
+      <div class="grid grid-us" id="us-grid"></div>
+    </div>
+
+    <div class="section sec-int">
+      <div class="section-label">International News & Politics</div>
+      <div class="grid grid-other" id="int-grid"></div>
+    </div>
+
+    <div class="section sec-tech">
+      <div class="section-label">Technology</div>
+      <div class="grid grid-other" id="tech-grid"></div>
+    </div>
+
+    <div class="section sec-sci">
+      <div class="section-label">Science News</div>
+      <div class="grid grid-other" id="science-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    // Clock update
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock-time').textContent = now.toLocaleTimeString('en-US', { hour12: false });
+      document.getElementById('clock-date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const feeds = {
+      us: {
+        right: [
+          { url: 'https://moxie.foxnews.com/google-publisher/latest.xml', name: 'Fox News' },
+          { url: 'https://www.newsmax.com/rss/Newsfront/16', name: 'Newsmax' },
+          { url: 'https://www.breitbart.com/feed/', name: 'Breitbart' },
+          { url: 'https://dailycaller.com/feed/', name: 'Daily Caller' },
+          { url: 'https://www.washingtontimes.com/rss/headlines/', name: 'Washington Times' },
+          { url: 'https://nypost.com/feed/', name: 'New York Post' }
+        ],
+        center: [
+          { url: 'https://www.reuters.com/arc/outboundfeeds/top-headlines/?outputType=xml', name: 'Reuters' },
+          { url: 'https://afs.google.com/dp-ap/rss', name: 'AP News' },
+          { url: 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en', name: 'Google News (US)' },
+          { url: 'https://www.usatoday.com/rss/news/nation/now-topstories.xml', name: 'USA Today' },
+          { url: 'https://axios.com/feed', name: 'Axios' },
+          { url: 'https://thehill.com/homenews/feed/', name: 'The Hill' } // Added reliable center politics
+        ],
+        left: [
+          { url: 'https://www.cbsnews.com/latest/rss/main', name: 'CBS News' },
+          { url: 'http://feeds.nbcnews.com/nbcnews/public/news', name: 'NBC News' },
+          { url: 'https://feeds.abcnews.com/abcnews/politicsheadlines', name: 'ABC News Politics' },
+          { url: 'https://rss.cnn.com/rss/cnn_topstories.rss', name: 'CNN Top Stories' },
+          { url: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', name: 'New York Times' },
+          { url: 'https://www.politico.com/rss/politicopicks.xml', name: 'POLITICO' } // Kept, but if 403 persists we can drop
+        ]
+      },
+      international: [
+        { url: 'http://feeds.bbci.co.uk/news/rss.xml', name: 'BBC News' },
+        { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'Al Jazeera' },
+        { url: 'https://www.reuters.com/arc/outboundfeeds/world/?outputType=xml', name: 'Reuters World' },
+        { url: 'https://timesofindia.indiatimes.com/rssfeedstopstories.cms', name: 'Times of India' }
+      ],
+      tech: [
+        { url: 'http://feeds.bbci.co.uk/news/technology/rss.xml', name: 'BBC Tech' },
+        { url: 'https://techcrunch.com/feed/', name: 'TechCrunch' },
+        { url: 'https://www.theverge.com/rss/index.xml', name: 'The Verge' },
+        { url: 'https://arstechnica.com/feed/', name: 'Ars Technica' },
+        { url: 'https://www.wired.com/feed/rss', name: 'WIRED' },
+        { url: 'https://www.engadget.com/rss.xml', name: 'Engadget' }
+      ],
+      science: [
+        { url: 'http://feeds.bbci.co.uk/news/science_and_environment/rss.xml', name: 'BBC Science' },
+        { url: 'https://rss.sciam.com/ScientificAmerican-Global', name: 'Scientific American' },
+        { url: 'https://www.nature.com/nature.rss', name: 'Nature' },
+        { url: 'https://www.science.org/rss/news_current.xml', name: 'Science Magazine' },
+        { url: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', name: 'Google News Science' },
+        { url: 'https://news.yahoo.com/rss/science', name: 'Yahoo News Science' }
+      ]
+    };
+
+    const proxy = 'https://corsproxy.io/?';
+
+    function parseRSS(xmlString) {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlString, 'application/xml');
+      const items = xml.querySelectorAll('item');
+      return Array.from(items).map(item => ({
+        title: item.querySelector('title')?.textContent || 'No title',
+        link: item.querySelector('link')?.textContent || '',
+        pubDate: item.querySelector('pubDate')?.textContent || ''
+      }));
+    }
+
+    async function fetchFeed(url) {
+      try {
+        const res = await fetch(proxy + encodeURIComponent(url), {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const xml = await res.text();
+        return parseRSS(xml);
+      } catch (err) {
+        console.error(`Fetch error for ${url}:`, err);
+        return [];
+      }
+    }
+
+    function createCard(item, sourceName) {
+      const card = document.createElement('a');
+      card.className = 'card';
+      card.href = item.link || '#';
+      card.target = '_blank';
+      card.rel = 'noopener';
+      card.innerHTML = `
+        <div class="card-name">${sourceName}</div>
+        <div class="card-title">${item.title}</div>
+        <div class="card-date">${item.pubDate ? new Date(item.pubDate).toLocaleString() : 'No date'}</div>
+        <span class="card-arrow">↗</span>
+      `;
+      return card;
+    }
+
+    async function loadSection(id, feedList, maxBlocks = 4) {
+      const grid = document.getElementById(id);
+      grid.innerHTML = '<div class="loading">Loading headlines...</div>';
+      let items = [];
+
+      if (id === 'us-grid') {
+        const allFeeds = [...feedList.right, ...feedList.center, ...feedList.left];
+        for (const f of allFeeds) {
+          let feedItems = await fetchFeed(f.url);
+          feedItems = feedItems.slice(0, 3).map(i => ({...i, source: f.name}));
+          items.push(...feedItems);
+        }
+      } else {
+        for (const f of feedList) {
+          let feedItems = await fetchFeed(f.url);
+          feedItems = feedItems.slice(0, 8).map(i => ({...i, source: f.name}));
+          items.push(...feedItems);
+        }
+      }
+
+      // Deduplication
+      const seen = new Set();
+      items = items.filter(item => {
+        const key = `${item.source}|${(item.title || '').trim().toLowerCase()}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      grid.innerHTML = '';
+      if (items.length === 0) {
+        grid.innerHTML = '<div class="error">No headlines loaded (some feeds may be blocked — try Refresh Now again or check console).</div>';
+        return;
+      }
+
+      items.sort((a,b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+      items.slice(0, maxBlocks).forEach(i => grid.appendChild(createCard(i, i.source)));
+    }
+
+    async function loadDashboard() {
+      await Promise.all([
+        loadSection('us-grid', feeds.us, 12),
+        loadSection('int-grid', feeds.international, 6),
+        loadSection('tech-grid', feeds.tech, 6),
+        loadSection('science-grid', feeds.science, 6)
+      ]);
+    }
+
+    window.addEventListener('load', loadDashboard);
+    document.getElementById('refresh-now').addEventListener('click', loadDashboard);
+  </script>
+</body>
+</html>
