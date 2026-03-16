@@ -241,8 +241,6 @@
       ]
     };
 
-    const proxy = 'https://corsproxy.io/?';
-
     function parseRSS(xmlString) {
       const parser = new DOMParser();
       const xml = parser.parseFromString(xmlString, 'application/xml');
@@ -256,7 +254,7 @@
 
     async function fetchFeed(url) {
       try {
-        const res = await fetch(proxy + encodeURIComponent(url));
+        const res = await fetch('/api/rss-proxy?url=' + encodeURIComponent(url));
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const xml = await res.text();
         return parseRSS(xml);
@@ -266,6 +264,12 @@
       }
     }
 
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     function createCard(item, sourceName) {
       const card = document.createElement('a');
       card.className = 'card';
@@ -273,10 +277,10 @@
       card.target = '_blank';
       card.rel = 'noopener';
       card.innerHTML = `
-        <div class="card-name">${sourceName}</div>
-        <div class="card-title">${item.title}</div>
+        <div class="card-name">${escapeHTML(sourceName)}</div>
+        <div class="card-title">${escapeHTML(item.title)}</div>
         <div class="card-date">${item.pubDate ? new Date(item.pubDate).toLocaleString() : 'No date'}</div>
-        <span class="card-arrow">↗</span>
+        <span class="card-arrow">&#8599;</span>
       `;
       return card;
     }
@@ -287,18 +291,27 @@
       let items = [];
 
       if (id === 'us-grid') {
-        // Even sampling: exactly 3 newest from EVERY feed
         const allFeeds = [...feedList.right, ...feedList.center, ...feedList.left];
-        for (const f of allFeeds) {
-          let feedItems = await fetchFeed(f.url);
-          feedItems = feedItems.slice(0, 3).map(i => ({...i, source: f.name}));
-          items.push(...feedItems);
+        const results = await Promise.allSettled(
+          allFeeds.map(f =>
+            fetchFeed(f.url).then(feedItems =>
+              feedItems.slice(0, 3).map(i => ({...i, source: f.name}))
+            )
+          )
+        );
+        for (const r of results) {
+          if (r.status === 'fulfilled') items.push(...r.value);
         }
       } else {
-        for (const f of feedList) {
-          let feedItems = await fetchFeed(f.url);
-          feedItems = feedItems.slice(0, 8).map(i => ({...i, source: f.name}));
-          items.push(...feedItems);
+        const results = await Promise.allSettled(
+          feedList.map(f =>
+            fetchFeed(f.url).then(feedItems =>
+              feedItems.slice(0, 8).map(i => ({...i, source: f.name}))
+            )
+          )
+        );
+        for (const r of results) {
+          if (r.status === 'fulfilled') items.push(...r.value);
         }
       }
 
