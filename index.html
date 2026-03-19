@@ -1,193 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Stellium Report</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Stellium – See the big picture. A modern news aggregator spanning the political spectrum.">
+  <title>Stellium – The Big Picture</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    /* ── Reset & Variables ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #080b10; --surface: #0e1118; --card: #12161f; --border: #1e2535;
+      --bg: #080b10; --surface: #0d1017; --card: #111620; --border: #1c2333;
       --neon: #00f5c4; --neon2: #7b61ff; --neon3: #ff4f8b; --neon4: #ffb547; --neon5: #38bdf8;
-      --text: #e8edf5; --muted: #5a6478;
+      --text: #e4e9f1; --muted: #525d72;
       --font-head: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
     }
-    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font-head); overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,245,196,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,196,.03) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; }
-    body::after { content: ''; position: fixed; top: -40%; left: -20%; width: 80vw; height: 80vw; background: radial-gradient(circle, rgba(0,245,196,.06) 0%, transparent 65%); pointer-events: none; z-index: 0; animation: breathe 8s ease-in-out infinite alternate; }
+
+    /* ── Base ── */
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh; background: var(--bg); color: var(--text);
+      font-family: var(--font-head); overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,196,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,196,.025) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: ''; position: fixed; top: -40%; left: -20%; width: 80vw; height: 80vw;
+      background: radial-gradient(circle, rgba(0,245,196,.05) 0%, transparent 65%);
+      pointer-events: none; z-index: 0; animation: breathe 10s ease-in-out infinite alternate;
+    }
     @keyframes breathe { from { transform: scale(1) translate(0,0); } to { transform: scale(1.15) translate(5%,5%); } }
-    .container { position: relative; z-index: 1; margin: 0 auto; padding: 48px 32px 80px; max-width: 1400px; }
-    header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; padding-bottom: 18px; border-bottom: 1px solid var(--border); animation: fadeDown .6s ease both; }
-    .header-left h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -1px; line-height: 1; }
-    .header-left h1 span { color: var(--neon); text-shadow: 0 0 24px rgba(0,245,196,.5); }
-    .clock { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 500; color: var(--neon); text-shadow: 0 0 16px rgba(0,245,196,.4); text-align: right; }
-    .clock small { display: block; font-size: .7rem; color: var(--muted); letter-spacing: .08em; margin-top: 4px; }
-    .controls { display: flex; align-items: center; gap: 12px; }
-    button { 
-      background: #1e2535; 
-      color: var(--neon); 
-      border: 1px solid var(--border); 
-      padding: 10px 18px; 
-      border-radius: 8px; 
-      cursor: pointer; 
-      font-family: var(--font-mono); 
-      font-size: .9rem; 
-      font-weight: 500; 
-      transition: all .25s ease; 
+
+    /* ── Container ── */
+    .container {
+      position: relative; z-index: 1; max-width: 1600px;
+      margin: 0 auto; padding: clamp(16px,4vw,48px) clamp(16px,4vw,32px) 60px;
     }
-    button:hover { 
-      background: rgba(0,245,196,.1); 
-      border-color: var(--neon); 
-      box-shadow: 0 0 16px rgba(0,245,196,.3); 
+
+    /* ── Header ── */
+    header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px; padding-bottom: 20px; margin-bottom: 28px;
+      border-bottom: 1px solid var(--border); animation: fadeDown .5s ease both;
     }
-    .section-label { 
-      font-family: var(--font-mono); 
-      font-size: 1.1rem; 
-      font-weight: 700; 
-      letter-spacing: .05em; 
-      text-transform: uppercase; 
-      margin-bottom: 16px; 
-      display: flex; 
-      align-items: center; 
-      gap: 10px; 
-      text-shadow: 0 0 12px rgba(0,245,196,.4); 
+    .header-left h1 {
+      font-size: clamp(1.8rem,5vw,3.2rem); font-weight: 800;
+      letter-spacing: -1px; line-height: 1.1;
     }
-    .sec-us    .section-label { color: var(--neon);   text-shadow: 0 0 12px rgba(0,245,196,.6); }
-    .sec-int   .section-label { color: var(--neon2);  text-shadow: 0 0 12px rgba(123,97,255,.6); }
-    .sec-tech  .section-label { color: var(--neon5);  text-shadow: 0 0 12px rgba(56,189,248,.6); }
-    .sec-sci   .section-label { color: var(--neon4);  text-shadow: 0 0 12px rgba(255,181,71,.6); }
+    .header-left h1 .accent { color: var(--neon); text-shadow: 0 0 20px rgba(0,245,196,.45); }
+    .tagline {
+      font-family: var(--font-mono); font-size: clamp(.75rem,2vw,.9rem);
+      color: var(--muted); margin-top: 6px; letter-spacing: .04em;
+    }
+    .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+    .clock {
+      font-family: var(--font-mono); font-size: clamp(1.1rem,3vw,1.4rem); font-weight: 500;
+      color: var(--neon); text-shadow: 0 0 14px rgba(0,245,196,.35); text-align: right;
+    }
+    .clock small {
+      display: block; font-size: clamp(.6rem,1.8vw,.7rem);
+      color: var(--muted); letter-spacing: .08em; margin-top: 3px;
+    }
+
+    /* ── Bias Selector ── */
+    .bias-selector {
+      display: inline-flex; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px; padding: 3px;
+    }
+    .bias-btn {
+      position: relative; background: transparent; border: none; border-radius: 9px;
+      padding: 8px 20px; cursor: pointer; font-family: var(--font-mono);
+      font-size: clamp(.72rem,1.5vw,.82rem); font-weight: 600; color: var(--muted);
+      transition: color .25s, background .25s, box-shadow .25s; white-space: nowrap;
+    }
+    .bias-btn:hover:not(.active) { color: var(--text); }
+    .bias-btn.active[data-bias="left"] {
+      color: #0a1628; background: var(--neon5); box-shadow: 0 0 16px rgba(56,189,248,.3);
+    }
+    .bias-btn.active[data-bias="center"] {
+      color: #0a1628; background: var(--neon); box-shadow: 0 0 16px rgba(0,245,196,.3);
+    }
+    .bias-btn.active[data-bias="right"] {
+      color: #0a1628; background: var(--neon3); box-shadow: 0 0 16px rgba(255,79,139,.3);
+    }
+
+    /* ── Breaking News ── */
+    .breaking-box {
+      display: flex; flex-direction: column; gap: 8px; position: relative;
+      background: var(--card); border: 1px solid rgba(255,79,139,.3); border-radius: 16px;
+      padding: clamp(18px,3vw,28px); margin-bottom: clamp(24px,4vw,36px);
+      text-decoration: none; color: inherit; overflow: hidden;
+      transition: transform .25s, box-shadow .25s, border-color .25s;
+    }
+    .breaking-box::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 20% 0%, rgba(255,79,139,.06), transparent 60%);
+      pointer-events: none;
+    }
+    .breaking-box:hover {
+      transform: translateY(-3px); border-color: var(--neon3);
+      box-shadow: 0 8px 40px rgba(255,79,139,.12);
+    }
+    .breaking-badge {
+      font-family: var(--font-mono); font-size: .65rem; font-weight: 700;
+      letter-spacing: .12em; color: var(--neon3); text-transform: uppercase;
+    }
+    .breaking-title {
+      font-size: clamp(1.15rem,3vw,1.5rem); font-weight: 700; line-height: 1.3; margin: 0;
+    }
+    .breaking-meta {
+      font-family: var(--font-mono); font-size: clamp(.65rem,1.8vw,.78rem);
+      color: var(--muted); display: flex; gap: 14px;
+    }
+    .breaking-arrow {
+      position: absolute; top: clamp(14px,2vw,22px); right: clamp(14px,2vw,22px);
+      font-size: 1.1rem; color: var(--muted); opacity: 0;
+      transform: translate(-4px,4px); transition: opacity .2s, transform .2s;
+    }
+    .breaking-box:hover .breaking-arrow {
+      opacity: 1; transform: translate(0,0); color: var(--neon3);
+    }
+
+    /* ── Sections ── */
+    main { display: flex; flex-direction: column; gap: clamp(24px,4vw,40px); }
+    .section { animation: fadeUp .5s ease both; }
+    .section-label {
+      font-family: var(--font-mono); font-size: clamp(.78rem,2vw,.92rem);
+      font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
+    }
     .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .section { margin-bottom: 48px; animation: fadeUp .6s ease both; }
-    .section:nth-child(2) { animation-delay: .1s; }
-    .section:nth-child(3) { animation-delay: .2s; }
-    .section:nth-child(4) { animation-delay: .3s; }
-    .grid { display: grid; gap: 14px; }
-    .grid-us   { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-    .grid-other { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-    @media (min-width: 1200px) {
-      .grid-us   { grid-template-columns: repeat(6, 1fr); }
-      .grid-other { grid-template-columns: repeat(6, 1fr); }
+    .sec-us  .section-label { color: var(--neon); }
+    .sec-int .section-label { color: var(--neon2); }
+    .sec-tech .section-label { color: var(--neon5); }
+    .sec-sci .section-label { color: var(--neon4); }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid; gap: clamp(10px,2vw,14px);
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
+    @media (min-width: 1200px) { .grid { grid-template-columns: repeat(6, 1fr); } }
+
+    /* ── Cards ── */
     .card {
-      position: relative;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px 20px 18px;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow: hidden;
-      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+      --accent: var(--neon); position: relative; background: var(--card);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: clamp(16px,2.5vw,22px) clamp(14px,2.5vw,20px) clamp(14px,2.5vw,18px);
+      cursor: pointer; text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 6px; overflow: hidden;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      min-height: 130px; animation: cardIn .4s ease both;
     }
     .card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      opacity: 0;
-      transition: opacity .3s ease;
-      background: radial-gradient(circle at 50% 0%, var(--accent, var(--neon)), transparent 70%);
+      content: ''; position: absolute; inset: 0; border-radius: inherit; opacity: 0;
+      transition: opacity .3s;
+      background: radial-gradient(circle at 50% 0%, var(--accent), transparent 70%);
     }
     .card:hover {
-      transform: translateY(-4px) scale(1.01);
-      border-color: var(--accent, var(--neon));
-      box-shadow: 0 0 0 1px var(--accent, var(--neon)), 0 8px 32px rgba(0,0,0,.5), 0 0 40px -10px var(--accent, var(--neon));
+      transform: translateY(-5px) scale(1.015); border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 10px 36px rgba(0,0,0,.45), 0 0 44px -10px var(--accent);
     }
-    .card:hover::before { opacity: .08; }
-    .card-name {
-      font-size: .95rem;
-      font-weight: 700;
-      letter-spacing: -.01em;
-      color: var(--accent, var(--neon));
-      text-shadow: 0 0 8px var(--accent, var(--neon));
+    .card:hover::before { opacity: .1; }
+    .card-source {
+      font-family: var(--font-mono); font-size: clamp(.68rem,1.6vw,.78rem);
+      font-weight: 600; color: var(--accent); letter-spacing: .02em;
     }
     .card-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      line-height: 1.35;
-      margin-top: 4px;
+      font-size: clamp(.88rem,2vw,1.02rem); font-weight: 600; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .card-date {
-      font-family: var(--font-mono);
-      font-size: .75rem;
-      color: var(--muted);
-      margin-top: auto;
+    .card-time {
+      font-family: var(--font-mono); font-size: clamp(.6rem,1.5vw,.72rem);
+      color: var(--muted); margin-top: auto;
     }
     .card-arrow {
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      font-size: .9rem;
-      color: var(--muted);
-      opacity: 0;
-      transform: translate(-4px,4px);
-      transition: opacity .2s ease, transform .2s ease;
+      position: absolute; top: clamp(12px,2vw,16px); right: clamp(12px,2vw,16px);
+      font-size: clamp(.8rem,1.8vw,.95rem); color: var(--muted); opacity: 0;
+      transform: translate(-4px,4px); transition: opacity .2s, transform .2s;
     }
-    .card:hover .card-arrow {
-      opacity: 1;
-      transform: translate(0,0);
-      color: var(--accent, var(--neon));
+    .card:hover .card-arrow { opacity: 1; transform: translate(0,0); color: var(--accent); }
+
+    /* Section-specific card accents */
+    .sec-us  .card { --accent: var(--neon); }
+    .sec-int .card { --accent: var(--neon2); }
+    .sec-tech .card { --accent: var(--neon5); }
+    .sec-sci .card { --accent: var(--neon4); }
+
+    /* ── Skeleton Loading ── */
+    .skeleton {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 22px 20px; min-height: 130px; display: flex; flex-direction: column; gap: 10px;
     }
-    .sec-us    .card { --accent: var(--neon);   }
-    .sec-int   .card { --accent: var(--neon2);  }
-    .sec-tech  .card { --accent: var(--neon5);  }
-    .sec-sci   .card { --accent: var(--neon4);  }
-    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeUp   { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 768px) { .header { flex-direction: column; align-items: center; } .header-right { align-items: center; } }
+    .skel-line {
+      background: var(--border); border-radius: 4px; height: 12px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    .skel-line.w30 { width: 30%; }
+    .skel-line.w45 { width: 45%; }
+    .skel-line.w60 { width: 60%; }
+    .skel-line.w90 { width: 90%; }
+    .skel-spacer { flex: 1; }
+    @keyframes pulse { 0%, 100% { opacity: .6; } 50% { opacity: .2; } }
+
+    /* ── Empty State ── */
+    .empty-state {
+      grid-column: 1 / -1; text-align: center; padding: 32px;
+      font-family: var(--font-mono); font-size: .85rem; color: var(--muted);
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: clamp(24px,4vw,40px); padding-top: 16px;
+      border-top: 1px solid var(--border); font-family: var(--font-mono);
+      font-size: .72rem; color: var(--muted); text-align: center;
+    }
+
+    /* ── Scroll to Top ── */
+    .scroll-top {
+      position: fixed; bottom: 28px; right: 28px; width: 42px; height: 42px;
+      border-radius: 50%; background: var(--card); border: 1px solid var(--border);
+      color: var(--neon); font-size: 1.1rem; cursor: pointer; z-index: 100;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity .3s, transform .3s, border-color .25s, box-shadow .25s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .scroll-top.visible { opacity: 1; transform: translateY(0); }
+    .scroll-top:hover { border-color: var(--neon); box-shadow: 0 0 16px rgba(0,245,196,.2); }
+
+    /* ── Animations ── */
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp   { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes cardIn   { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      header { flex-direction: column; align-items: center; text-align: center; }
+      .header-left { text-align: center; }
+      .header-right { align-items: center; }
+      .bias-selector { width: 100%; justify-content: center; }
+      .bias-btn { flex: 1; text-align: center; padding: 8px 14px; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    }
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div class="header-left">
-        <h1>The <span>Stellium</span> Report</h1>
+        <h1><span class="accent">Stellium</span></h1>
+        <p class="tagline">See the big picture.</p>
       </div>
-      <div class="clock" id="clock">
-        <span id="clock-time"></span>
-        <small id="clock-date"></small>
-      </div>
-      <div class="controls">
-        <button id="refresh-now">Refresh Now</button>
+      <div class="header-right">
+        <div class="clock" id="clock">
+          <span id="clock-time"></span>
+          <small id="clock-date"></small>
+        </div>
+        <nav class="bias-selector" role="tablist" aria-label="Political perspective">
+          <button class="bias-btn" data-bias="left" role="tab" aria-selected="false">Left</button>
+          <button class="bias-btn active" data-bias="center" role="tab" aria-selected="true">Center</button>
+          <button class="bias-btn" data-bias="right" role="tab" aria-selected="false">Right</button>
+        </nav>
       </div>
     </header>
 
-    <div class="section sec-us">
-      <div class="section-label">U.S. News & Politics</div>
-      <div class="grid grid-us" id="us-grid"></div>
-    </div>
+    <a id="breaking-box" class="breaking-box" href="#" target="_blank" rel="noopener" style="display:none">
+      <span class="breaking-badge">BREAKING</span>
+      <h2 id="breaking-title" class="breaking-title"></h2>
+      <div class="breaking-meta">
+        <span id="breaking-source"></span>
+        <span id="breaking-time"></span>
+      </div>
+      <span class="breaking-arrow">↗</span>
+    </a>
 
-    <div class="section sec-int">
-      <div class="section-label">International News & Politics</div>
-      <div class="grid grid-other" id="int-grid"></div>
-    </div>
+    <main>
+      <section class="section sec-us">
+        <h2 class="section-label">U.S. News &amp; Politics</h2>
+        <div class="grid" id="us-grid"></div>
+      </section>
 
-    <div class="section sec-tech">
-      <div class="section-label">Technology</div>
-      <div class="grid grid-other" id="tech-grid"></div>
-    </div>
+      <section class="section sec-int">
+        <h2 class="section-label">International</h2>
+        <div class="grid" id="int-grid"></div>
+      </section>
 
-    <div class="section sec-sci">
-      <div class="section-label">Science News</div>
-      <div class="grid grid-other" id="science-grid"></div>
-    </div>
+      <section class="section sec-tech">
+        <h2 class="section-label">Technology</h2>
+        <div class="grid" id="tech-grid"></div>
+      </section>
+
+      <section class="section sec-sci">
+        <h2 class="section-label">Science</h2>
+        <div class="grid" id="science-grid"></div>
+      </section>
+    </main>
+
+    <footer>
+      <span id="last-updated"></span>
+    </footer>
   </div>
 
+  <button class="scroll-top" id="scroll-top" aria-label="Scroll to top">↑</button>
+
   <script>
-    // Clock update
+    // ── Clock ──
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock-time').textContent = now.toLocaleTimeString('en-US', { hour12: false });
-      document.getElementById('clock-date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('clock-time').textContent =
+        now.toLocaleTimeString('en-US', { hour12: false });
+      document.getElementById('clock-date').textContent =
+        now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     }
     updateClock();
     setInterval(updateClock, 1000);
 
+    // ── Feed Configuration ──
     const feeds = {
       us: {
         right: [
@@ -201,20 +339,18 @@
         center: [
           { url: 'https://www.reuters.com/arc/outboundfeeds/top-headlines/?outputType=xml', name: 'Reuters' },
           { url: 'https://afs.google.com/dp-ap/rss', name: 'AP News' },
-          { url: 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en', name: 'Google News (US)' },
+          { url: 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en', name: 'Google News' },
           { url: 'https://www.usatoday.com/rss/news/nation/now-topstories.xml', name: 'USA Today' },
-          { url: 'https://axios.com/feed', name: 'Axios' }
+          { url: 'https://axios.com/feed', name: 'Axios' },
+          { url: 'https://thehill.com/homenews/feed/', name: 'The Hill' }
         ],
         left: [
           { url: 'https://www.cbsnews.com/latest/rss/main', name: 'CBS News' },
           { url: 'http://feeds.nbcnews.com/nbcnews/public/news', name: 'NBC News' },
-          { url: 'https://feeds.abcnews.com/abcnews/politicsheadlines', name: 'ABC News Politics' },
-          { url: 'https://rss.cnn.com/rss/cnn_topstories.rss', name: 'CNN Top Stories' },
+          { url: 'https://feeds.abcnews.com/abcnews/politicsheadlines', name: 'ABC News' },
+          { url: 'https://rss.cnn.com/rss/cnn_topstories.rss', name: 'CNN' },
           { url: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', name: 'New York Times' },
-          { url: 'https://www.politico.com/rss/politicopicks.xml', name: 'POLITICO' },
-          { url: 'https://feeds.npr.org/1001/rss.xml', name: 'NPR National' },
-          { url: 'https://www.msnbc.com/feed', name: 'MSNBC' },
-          { url: 'https://www.huffpost.com/section/front-page/feed', name: 'HuffPost' }
+          { url: 'https://www.politico.com/rss/politicopicks.xml', name: 'POLITICO' }
         ]
       },
       international: [
@@ -236,105 +372,197 @@
         { url: 'https://rss.sciam.com/ScientificAmerican-Global', name: 'Scientific American' },
         { url: 'https://www.nature.com/nature.rss', name: 'Nature' },
         { url: 'https://www.science.org/rss/news_current.xml', name: 'Science Magazine' },
-        { url: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', name: 'Google News Science' },
-        { url: 'https://news.yahoo.com/rss/science', name: 'Yahoo News Science' }
+        { url: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', name: 'Google Science' },
+        { url: 'https://news.yahoo.com/rss/science', name: 'Yahoo Science' }
       ]
     };
 
-    const proxy = 'https://corsproxy.io/?';
-
-    function parseRSS(xmlString) {
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(xmlString, 'application/xml');
-      const items = xml.querySelectorAll('item');
-      return Array.from(items).map(item => ({
-        title: item.querySelector('title')?.textContent || 'No title',
-        link: item.querySelector('link')?.textContent || '',
-        pubDate: item.querySelector('pubDate')?.textContent || ''
-      }));
+    // ── Utilities ──
+    function timeAgo(dateStr) {
+      if (!dateStr) return '';
+      const diff = Date.now() - new Date(dateStr).getTime();
+      if (diff < 0 || isNaN(diff)) return 'Just now';
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'Just now';
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      return days + 'd ago';
     }
 
-    async function fetchFeed(url) {
+    // ── Batch Feed Fetching (single request for all feeds) ──
+    async function fetchBatch(feedList) {
       try {
-        const res = await fetch(proxy + encodeURIComponent(url));
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const xml = await res.text();
-        return parseRSS(xml);
+        const res = await fetch('/.netlify/functions/rss-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ feeds: feedList })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
       } catch (err) {
-        console.error(`Fetch error for ${url}:`, err);
-        return [];
+        console.warn('Batch fetch error:', err.message);
+        return {};
       }
     }
 
-    function createCard(item, sourceName) {
+    // ── DOM Creation (XSS-safe – uses textContent, never innerHTML for data) ──
+    function createCard(item, sourceName, index) {
       const card = document.createElement('a');
       card.className = 'card';
       card.href = item.link || '#';
       card.target = '_blank';
       card.rel = 'noopener';
-      card.innerHTML = `
-        <div class="card-name">${sourceName}</div>
-        <div class="card-title">${item.title}</div>
-        <div class="card-date">${item.pubDate ? new Date(item.pubDate).toLocaleString() : 'No date'}</div>
-        <span class="card-arrow">↗</span>
-      `;
+      card.style.animationDelay = (index * 40) + 'ms';
+
+      const source = document.createElement('div');
+      source.className = 'card-source';
+      source.textContent = sourceName;
+
+      const title = document.createElement('div');
+      title.className = 'card-title';
+      title.textContent = item.title || 'Untitled';
+
+      const time = document.createElement('div');
+      time.className = 'card-time';
+      time.textContent = timeAgo(item.pubDate);
+
+      const arrow = document.createElement('span');
+      arrow.className = 'card-arrow';
+      arrow.textContent = '\u2197';
+
+      card.append(source, title, time, arrow);
       return card;
     }
 
-    async function loadSection(id, feedList, maxBlocks = 4) {
-      const grid = document.getElementById(id);
-      grid.innerHTML = '<div class="loading">Loading headlines...</div>';
-      let items = [];
-
-      if (id === 'us-grid') {
-        // Even sampling: exactly 3 newest from EVERY feed
-        const allFeeds = [...feedList.right, ...feedList.center, ...feedList.left];
-        for (const f of allFeeds) {
-          let feedItems = await fetchFeed(f.url);
-          feedItems = feedItems.slice(0, 3).map(i => ({...i, source: f.name}));
-          items.push(...feedItems);
-        }
-      } else {
-        for (const f of feedList) {
-          let feedItems = await fetchFeed(f.url);
-          feedItems = feedItems.slice(0, 8).map(i => ({...i, source: f.name}));
-          items.push(...feedItems);
-        }
+    function showSkeletons(gridId, count) {
+      const grid = document.getElementById(gridId);
+      grid.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement('div');
+        s.className = 'skeleton';
+        s.innerHTML = '<div class="skel-line w30"></div><div class="skel-line w90"></div><div class="skel-line w60"></div><div class="skel-spacer"></div><div class="skel-line w45"></div>';
+        grid.appendChild(s);
       }
+    }
 
-      // Deduplication: remove exact duplicates (same source + same title)
+    // ── Section Helpers ──
+    function collectItems(batchData, feedList, maxPerFeed) {
+      const allItems = [];
+      for (const f of feedList) {
+        const items = (batchData[f.name] || []).slice(0, maxPerFeed);
+        allItems.push(...items.map(item => ({ ...item, source: f.name })));
+      }
       const seen = new Set();
-      items = items.filter(item => {
-        const key = `${item.source}|${(item.title || '').trim().toLowerCase()}`;
-        if (seen.has(key)) return false;
+      return allItems.filter(item => {
+        const key = (item.title || '').trim().toLowerCase();
+        if (!key || seen.has(key)) return false;
         seen.add(key);
         return true;
-      });
+      }).sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+    }
 
+    function renderSection(gridId, items, maxCards) {
+      const grid = document.getElementById(gridId);
       grid.innerHTML = '';
       if (items.length === 0) {
-        grid.innerHTML = '<div class="error">No headlines loaded. Check console for errors.</div>';
+        grid.innerHTML = '<div class="empty-state">No headlines available right now.</div>';
+        return [];
+      }
+      const displayed = items.slice(0, maxCards);
+      displayed.forEach((item, i) => grid.appendChild(createCard(item, item.source, i)));
+      return displayed;
+    }
+
+    // ── Breaking News ──
+    function showBreaking(items) {
+      const box = document.getElementById('breaking-box');
+      if (!items || items.length === 0) {
+        box.style.display = 'none';
         return;
       }
-
-      items.sort((a,b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
-      items.slice(0, maxBlocks).forEach(i => grid.appendChild(createCard(i, i.source)));
+      const top = items[0];
+      document.getElementById('breaking-title').textContent = top.title;
+      document.getElementById('breaking-source').textContent = top.source;
+      document.getElementById('breaking-time').textContent = timeAgo(top.pubDate);
+      box.href = top.link || '#';
+      box.style.display = 'flex';
     }
 
-    async function loadDashboard() {
-      await Promise.all([
-        loadSection('us-grid', feeds.us, 12),
-        loadSection('int-grid', feeds.international, 6),
-        loadSection('tech-grid', feeds.tech, 6),
-        loadSection('science-grid', feeds.science, 6)
-      ]);
+    // ── Bias Toggle ──
+    let currentBias = 'center';
+    const biasBtns = document.querySelectorAll('.bias-btn');
+
+    function setActiveBias(bias) {
+      biasBtns.forEach(btn => {
+        const active = btn.dataset.bias === bias;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active);
+      });
     }
 
-    // Auto-load on page open
-    window.addEventListener('load', loadDashboard);
+    biasBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const bias = btn.dataset.bias;
+        if (bias === currentBias) return;
+        currentBias = bias;
+        setActiveBias(bias);
+        loadDashboard(bias);
+      });
+    });
 
-    // Manual refresh button
-    document.getElementById('refresh-now').addEventListener('click', loadDashboard);
+    // ── Dashboard Orchestration (single batch request) ──
+    async function loadDashboard(bias) {
+      const usFeedList = feeds.us[bias] || feeds.us.center;
+
+      showSkeletons('us-grid', 12);
+      showSkeletons('int-grid', 6);
+      showSkeletons('tech-grid', 6);
+      showSkeletons('science-grid', 6);
+
+      const allFeeds = [...usFeedList, ...feeds.international, ...feeds.tech, ...feeds.science];
+      const batchData = await fetchBatch(allFeeds);
+
+      const usItems = collectItems(batchData, usFeedList, 3);
+      renderSection('us-grid', usItems, 12);
+      renderSection('int-grid', collectItems(batchData, feeds.international, 4), 6);
+      renderSection('tech-grid', collectItems(batchData, feeds.tech, 3), 6);
+      renderSection('science-grid', collectItems(batchData, feeds.science, 3), 6);
+
+      showBreaking(usItems);
+      document.getElementById('last-updated').textContent =
+        'Last updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ── Scroll to Top ──
+    const scrollBtn = document.getElementById('scroll-top');
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ── Scheduled Refresh ──
+    const REFRESH_HOURS = [7, 13, 19];
+    let lastRefreshHour = -1;
+    function checkScheduledRefresh() {
+      const hour = new Date().getHours();
+      if (REFRESH_HOURS.includes(hour) && hour !== lastRefreshHour) {
+        lastRefreshHour = hour;
+        loadDashboard(currentBias);
+      }
+    }
+    setInterval(() => {
+      if (document.visibilityState === 'visible') checkScheduledRefresh();
+    }, 60000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') checkScheduledRefresh();
+    });
+
+    // ── Init ──
+    loadDashboard('center');
   </script>
 </body>
-</html> 
+</html>
